@@ -7,12 +7,9 @@ fetch_admin_token() {
     echo -e "--------------------------------------------"
     echo -e "------------ Telegram : @XuVixc ------------"
     echo -e "--------------------------------------------"
-    read -p "Enter the URL: " API_URL
-    echo -e "--------------------------------------------"
-    read -p "Enter the Username: " USER_NAME
-    echo -e "--------------------------------------------"
-    read -p "Enter the Password: " PASSWORD
-    echo -e "--------------------------------------------"
+    read -p "\nEnter the URL: " API_URL
+    read -p "\nEnter the Username: " USER_NAME
+    read -p "\nEnter the Password: " PASSWORD
 
     local url="${API_URL}/api/admin/token"
     local data="grant_type=password&username=${USER_NAME}&password=${PASSWORD}&scope=read write&client_id=your-client-id&client_secret=your-client-secret"
