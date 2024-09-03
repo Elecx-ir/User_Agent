@@ -3,39 +3,38 @@
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
-CYAN='\033[0;36m'
-NC='\033[0m' # No Color
+NC='\033[0m' 
 
 install_prerequisites() {
-    echo -e "${YELLOW}Updating package lists...${NC}"
+    echo "Updating package lists..."
     sudo apt-get update -y
     
     if ! command -v curl &> /dev/null; then
-        echo -e "${YELLOW}Installing curl...${NC}"
+        echo "Installing curl..."
         sudo apt-get install curl -y
     else
-        echo -e "${GREEN}curl is already installed.${NC}"
+        echo "curl is already installed."
     fi
 
     if ! command -v jq &> /dev/null; then
-        echo -e "${YELLOW}Installing jq...${NC}"
+        echo "Installing jq..."
         sudo apt-get install jq -y
     else
-        echo -e "${GREEN}jq is already installed.${NC}"
+        echo "jq is already installed."
     fi
 }
 
 fetch_admin_token() {
     clear
-    echo -e "${CYAN}--------------------------------------------${NC}"
-    echo -e "${CYAN}-------- Marzban User Agent Script ---------${NC}"
-    echo -e "${CYAN}--------------------------------------------${NC}"
-    echo -e "${CYAN}------------ Telegram : @XuVixc ------------${NC}"
-    echo -e "${CYAN}--------------------------------------------${NC}"
-    read -p "${YELLOW}Enter the URL: " API_URL
-    read -p "${YELLOW}Enter the Username: " USER_NAME
-    read -p "${YELLOW}Enter the Password: " PASSWORD
-    echo -e "${CYAN}--------------------------------------------${NC}"
+    echo "--------------------------------------------"
+    echo "-------- ${YELLOW}Marzban User Agent Script${NC} ---------"
+    echo "--------------------------------------------"
+    echo "------------ ${YELLOW}Telegram : @XuVixc${NC} ------------"
+    echo "--------------------------------------------"
+    read -p "Enter the URL: " API_URL
+    read -p "Enter the Username: " USER_NAME
+    read -p "Enter the Password: " PASSWORD
+    echo "--------------------------------------------"
 
     local url="${API_URL}/api/admin/token"
     local data="grant_type=password&username=${USER_NAME}&password=${PASSWORD}&scope=read write&client_id=your-client-id&client_secret=your-client-secret"
@@ -46,16 +45,17 @@ fetch_admin_token() {
         -d "$data")
 
     if [ $? -ne 0 ]; then
-        echo -e "${RED}Failed to connect to the API.${NC}"
+        echo "${RED}Failed to connect to the API.${NC}"
         return 1
     fi
 
     token=$(echo "$response" | jq -r '.access_token')
 
     if [ "$token" != "null" ] && [ -n "$token" ]; then
-        echo -e "${CYAN}Token Fetched Successfully.${NC}"
+        echo "${GREEN}Token Fetched Successfully.${NC}"
+        echo "--------------------------------------------"
     else
-        echo -e "${RED}Failed to fetch the token. Response: $response${NC}"
+        echo "${RED}Failed to fetch the token. Response: $response${NC}"
         return 1
     fi
 }
@@ -70,7 +70,7 @@ get_agent_user_stats() {
     response=$(curl -s -X GET "$api_url" "${headers[@]}")
 
     if [ $? -ne 0 ]; then
-        echo -e "${RED}Failed to connect to the API.${NC}"
+        echo "${RED}Failed to connect to the API.${NC}"
         return 1
     fi
 
@@ -89,27 +89,26 @@ get_agent_user_stats() {
     declare -A agent_display_map
     for agent in "${!agent_counts[@]}"; do
         agent_display_map[$agent_index]=$agent
-        echo -e "${GREEN}$agent_index) $agent - ${GREEN}Number of Users: ${agent_counts[$agent]}${NC}"
+        echo "$agent_index) ${GREEN}$agent - Number of Users: ${agent_counts[$agent]}${NC}"
         ((agent_index++))
     done
     
     while true; do
-        read -p "${YELLOW}Enter the number corresponding to the agent to display users (or '0' to quit): " selected_index
-        echo -e "${CYAN}--------------------------------------------${NC}"
+        echo "--------------------------------------------"
+        read -p "Enter the number corresponding to the agent to display users (or '0' to Exit): " selected_index
+        echo "--------------------------------------------"
         if [[ "$selected_index" == "0" ]]; then
-            echo -e "${YELLOW}Exiting...${NC}"
+            echo "${RED}Exiting...${NC}"
             break
         fi
 
         selected_agent=${agent_display_map[$selected_index]}
 
         if [ -n "$selected_agent" ]; then
-            echo -e "${CYAN}Agent: $selected_agent${NC}"
-            echo -e "${GREEN}Number of Users: ${agent_counts[$selected_agent]}${NC}"
-            echo -e "${YELLOW}Usernames:${NC}"
-            echo -e "${GREEN}${agent_users[$selected_agent]}${NC}"
+            echo "${GREEN}$selected_agent - Number of Users: ${agent_counts[$selected_agent]}${NC}"
+            echo "${YELLOW}Usernames: ${agent_users[$selected_agent]}${NC}"
         else
-            echo -e "${RED}Invalid agent number.${NC}"
+            echo "${RED}Invalid agent number.${NC}"
         fi
     done
 }
