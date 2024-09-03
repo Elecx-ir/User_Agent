@@ -59,15 +59,15 @@ get_agent_user_stats() {
         agent_counts["$agent"]=$count
     done <<< "$agents"
 
+    agent_index=1
+    declare -A agent_display_map
+    for agent in "${!agent_counts[@]}"; do
+        agent_display_map[$agent_index]=$agent
+        echo "$agent_index) $agent - Number of Users: ${agent_counts[$agent]}"
+        ((agent_index++))
+    done
+    
     while true; do
-        agent_index=1
-        declare -A agent_display_map
-        for agent in "${!agent_counts[@]}"; do
-            agent_display_map[$agent_index]=$agent
-            echo "$agent_index) $agent - Number of Users: ${agent_counts[$agent]}"
-            ((agent_index++))
-        done
-
         read -p "Enter the number corresponding to the agent to display users (or '0' to quit): " selected_index
         echo -e "--------------------------------------------"
         if [[ "$selected_index" == "0" ]]; then
