@@ -1,7 +1,7 @@
 #!/bin/bash
 
 fetch_admin_token() {
-    echo -e "\n-------------------------------------------- V.7"
+    echo -e "\n-------------------------------------------- V.7.7"
     read -p "Enter the API URL: " API_URL
     read -p "Enter the Username: " USER_NAME
     read -s -p "Enter the Password: " PASSWORD
@@ -23,7 +23,7 @@ fetch_admin_token() {
     token=$(echo "$response" | jq -r '.access_token')
 
     if [ "$token" != "null" ] && [ -n "$token" ]; then
-        echo "Token fetched successfully: $token"
+        echo "Token fetched successfully."
         echo "--------------------------------------------"
     else
         echo "Failed to fetch the token. Response: $response"
@@ -37,9 +37,6 @@ get_agent_user_stats() {
         -H "accept: application/json"
         -H "Authorization: Bearer $token"
     )
-    
-    echo "Fetching users from: $api_url"
-    echo "Using token: $token"
 
     response=$(curl -s -X GET "$api_url" "${headers[@]}")
 
@@ -54,17 +51,34 @@ get_agent_user_stats() {
     # Extract and process sub_last_user_agent values
     agents=$(echo "$response" | jq -r '.users[].sub_last_user_agent' | sort | uniq)
 
+    # Use associative array to track counts and users
+    declare -A agent_users
+    declare -A agent_counts
+
     for agent in $agents; do
-        if [ -n "$agent" ]; then
-            echo "Agent: $agent"
-            
-            user_count=$(echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent == $agent) | .username' | wc -l)
-            echo "Number of Users: $user_count"
-            echo "Usernames:"
-            echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent == $agent) | .username'
-            echo "--------------------------------------------"
-        fi
+        user_count=$(echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent == $agent) | .username' | wc -l)
+        agent_users["$agent"]=$(echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent == $agent) | .username' | tr '\n' ' ')
+        agent_counts["$agent"]=$user_count
     done
+
+    # Display agents with their user counts
+    for agent in "${!agent_counts[@]}"; do
+        echo "Agent: $agent"
+        echo "Number of Users: ${agent_counts[$agent]}"
+        echo "--------------------------------------------"
+    done
+
+    # Get user input for agent number
+    read -p "Enter the agent name to display users (exactly as shown above): " selected_agent
+
+    if [ -n "${agent_users[$selected_agent]}" ]; then
+        echo "Agent: $selected_agent"
+        echo "Number of Users: ${agent_counts[$selected_agent]}"
+        echo "Usernames:"
+        echo "${agent_users[$selected_agent]}"
+    else
+        echo "Invalid agent name."
+    fi
 }
 
 fetch_admin_token
