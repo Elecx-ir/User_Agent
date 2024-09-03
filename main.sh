@@ -1,7 +1,7 @@
 #!/bin/bash
 
 fetch_admin_token() {
-     echo -e "\n-------------------------------------------- V.4"
+    echo -e "\n-------------------------------------------- V.5"
     read -p "Enter the API URL: " API_URL
     read -p "Enter the Username: " USER_NAME
     read -s -p "Enter the Password: " PASSWORD
@@ -31,7 +31,7 @@ fetch_admin_token() {
     fi
 }
 
-get_all_users() {
+get_agent_user_stats() {
     local api_url="${API_URL}/api/users"
     local headers=(
         -H "accept: application/json"
@@ -48,27 +48,25 @@ get_all_users() {
         return 1
     fi
 
-    # Parse the JSON response to extract user data
-    users_data=$(echo "$response" | jq '.users')
-    users=$(echo "$response" | jq '.total')
+    echo "Agent User Stats:"
+    echo "--------------------------------------------"
 
-    if [ "$users_data" != "null" ] && [ -n "$users_data" ]; then
-        echo "Users Data :"
-        echo "$users_data"
-        echo "--------------------------------------------"
-        echo "Users :"
-        echo "$users"
-        echo "--------------------------------------------"
-    else
-        echo "No users found or failed to parse the response."
-        return 1
-    fi
+    # Extracting sub_last_user_agent and associated usernames
+    agents=$(echo "$response" | jq -r '.users[].sub_last_user_agent' | sort | uniq)
+
+    for agent in $agents; do
+        if [ -n "$agent" ]; then
+            echo "Agent: $agent"
+            user_count=$(echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent==$agent) | .username' | wc -l)
+            echo "Number of Users: $user_count"
+            echo "Usernames:"
+            echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent==$agent) | .username'
+            echo "--------------------------------------------"
+        fi
+    done
 }
-
-
-
 
 fetch_admin_token
 if [ $? -eq 0 ]; then
-    get_all_users
+    get_agent_user_stats
 fi
