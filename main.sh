@@ -1,6 +1,11 @@
 #!/bin/bash
 
-RED='\033[0;31m'GREEN='\033[0;32m'YELLOW='\033[0;33m'BLUE='\033[0;34m'CYAN='\033[0;36m'NC='\033[0m' # No Color
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+NC='\033[0m' 
 
 install_prerequisites() {
     echo -e "${YELLOW}Updating package lists...${NC}"
@@ -24,7 +29,7 @@ install_prerequisites() {
 
 fetch_admin_token() {
     clear
-    echo -e "${CYAN}--------------------------------------------${NC}"
+    echo -e "${CYAN}-----------------------------V---------------${NC}"
     echo -e "${CYAN}-------- ${BLUE}Marzban User Agent Script ${CYAN}--------${NC}"
     echo -e "${CYAN}--------------------------------------------${NC}"
     echo -e "${CYAN}------------ ${BLUE}Telegram : @XuVixc ${CYAN}------------${NC}"
@@ -93,7 +98,7 @@ get_agent_user_stats() {
     done
     
     while true; do
-        read -p "\nEnter the number corresponding to the agent to display users (or '0' to quit): " selected_index
+        read -p "Enter the number corresponding to the agent to display users (or '0' to quit): " selected_index
         echo -e "${CYAN}--------------------------------------------${NC}"
         if [[ "$selected_index" == "0" ]]; then
             echo -e "${YELLOW}Exiting...${NC}"
