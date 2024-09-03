@@ -1,15 +1,38 @@
 #!/bin/bash
 
+RED='\033[0;31m'GREEN='\033[0;32m'YELLOW='\033[0;33m'BLUE='\033[0;34m'CYAN='\033[0;36m'NC='\033[0m' # No Color
+
+install_prerequisites() {
+    echo -e "${YELLOW}Updating package lists...${NC}"
+    sudo apt-get update -y
+    
+    if ! command -v curl &> /dev/null; then
+        echo -e "${YELLOW}Installing curl...${NC}"
+        sudo apt-get install curl -y
+    else
+        echo -e "${GREEN}curl is already installed.${NC}"
+    fi
+
+    if ! command -v jq &> /dev/null; then
+        echo -e "${YELLOW}Installing jq...${NC}"
+        sudo apt-get install jq -y
+    else
+        echo -e "${GREEN}jq is already installed.${NC}"
+    fi
+
+}
+
 fetch_admin_token() {
     clear
-    echo -e "--------------------------------------------"
-    echo -e "-------- Marzban User Agent Script ---------"
-    echo -e "--------------------------------------------"
-    echo -e "------------ Telegram : @XuVixc ------------"
-    echo -e "--------------------------------------------"
-    read -p "/nEnter the URL: " API_URL
-    read -p "/nEnter the Username: " USER_NAME
-    read -p "/nEnter the Password: " PASSWORD
+    echo -e "${CYAN}--------------------------------------------${NC}"
+    echo -e "${CYAN}-------- ${BLUE}Marzban User Agent Script ${CYAN}--------${NC}"
+    echo -e "${CYAN}--------------------------------------------${NC}"
+    echo -e "${CYAN}------------ ${BLUE}Telegram : @XuVixc ${CYAN}------------${NC}"
+    echo -e "${CYAN}--------------------------------------------${NC}"
+    read -p "Enter the URL: " API_URL
+    read -p "Enter the Username: " USER_NAME
+    read -p "Enter the Password: " PASSWORD
+    echo -e "${CYAN}--------------------------------------------${NC}"
 
     local url="${API_URL}/api/admin/token"
     local data="grant_type=password&username=${USER_NAME}&password=${PASSWORD}&scope=read write&client_id=your-client-id&client_secret=your-client-secret"
@@ -20,17 +43,17 @@ fetch_admin_token() {
         -d "$data")
 
     if [ $? -ne 0 ]; then
-        echo "Failed to connect to the API."
+        echo -e "${RED}Failed to connect to the API.${NC}"
         return 1
     fi
 
     token=$(echo "$response" | jq -r '.access_token')
 
     if [ "$token" != "null" ] && [ -n "$token" ]; then
-        echo "/nToken Fetched Successfully."
-        echo "--------------------------------------------"
+        echo -e "${GREEN}Token Fetched Successfully.${NC}"
+        echo -e "${CYAN}--------------------------------------------${NC}"
     else
-        echo "Failed to fetch the token. Response: $response"
+        echo -e "${RED}Failed to fetch the token. Response: $response${NC}"
         return 1
     fi
 }
@@ -42,10 +65,11 @@ get_agent_user_stats() {
         -H "Authorization: Bearer $token"
     )
 
+    echo -e "${YELLOW}Fetching User Agents...${NC}"
     response=$(curl -s -X GET "$api_url" "${headers[@]}")
 
     if [ $? -ne 0 ]; then
-        echo "Failed to connect to the API."
+        echo -e "${RED}Failed to connect to the API.${NC}"
         return 1
     fi
 
@@ -64,32 +88,36 @@ get_agent_user_stats() {
     declare -A agent_display_map
     for agent in "${!agent_counts[@]}"; do
         agent_display_map[$agent_index]=$agent
-        echo "$agent_index) $agent - Number of Users: ${agent_counts[$agent]}"
+        echo -e "${BLUE}$agent_index) $agent - ${CYAN}Number of Users: ${GREEN}${agent_counts[$agent]}${NC}"
         ((agent_index++))
     done
     
     while true; do
-        read -p "/nEnter the number corresponding to the agent to display users (or '0' to quit): " selected_index
-        echo -e "/n--------------------------------------------"
+        read -p "\nEnter the number corresponding to the agent to display users (or '0' to quit): " selected_index
+        echo -e "${CYAN}--------------------------------------------${NC}"
         if [[ "$selected_index" == "0" ]]; then
-            echo "Exiting..."
+            echo -e "${YELLOW}Exiting...${NC}"
             break
         fi
 
         selected_agent=${agent_display_map[$selected_index]}
 
         if [ -n "$selected_agent" ]; then
-            echo "Agent: $selected_agent"
-            echo "Number of Users: ${agent_counts[$selected_agent]}"
-            echo "Usernames:"
-            echo "${agent_users[$selected_agent]}"
-            echo -e "--------------------------------------------"
+            echo -e "${BLUE}Agent: $selected_agent${NC}"
+            echo -e "${CYAN}Number of Users: ${GREEN}${agent_counts[$selected_agent]}${NC}"
+            echo -e "${CYAN}Usernames:${NC}"
+            echo -e "${GREEN}${agent_users[$selected_agent]}${NC}"
+            echo -e "${CYAN}--------------------------------------------${NC}"
         else
-            echo "Invalid agent number."
+            echo -e "${RED}Invalid agent number.${NC}"
         fi
     done
 }
 
+# Install prerequisites before running the script
+install_prerequisites
+
+# Run the main functions
 fetch_admin_token
 if [ $? -eq 0 ]; then
     get_agent_user_stats
