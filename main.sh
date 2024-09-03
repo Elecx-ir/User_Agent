@@ -1,7 +1,7 @@
 #!/bin/bash
 
 fetch_admin_token() {
-    echo -e "\n-------------------------------------------- V.6.6"
+    echo -e "\n-------------------------------------------- V.7"
     read -p "Enter the API URL: " API_URL
     read -p "Enter the Username: " USER_NAME
     read -s -p "Enter the Password: " PASSWORD
@@ -52,19 +52,16 @@ get_agent_user_stats() {
     echo "--------------------------------------------"
 
     # Extract and process sub_last_user_agent values
-    agents=$(echo "$response" | jq -r '.users[].sub_last_user_agent' | sed -e 's/^\([^/]*\)\/\([^(]*\).*$/\1\/\2/' | sort | uniq)
+    agents=$(echo "$response" | jq -r '.users[].sub_last_user_agent' | sort | uniq)
 
     for agent in $agents; do
         if [ -n "$agent" ]; then
-            agent_name=$(echo "$agent" | awk -F'/' '{print $1}')
-            agent_version=$(echo "$agent" | awk -F'/' '{print $2}')
-            echo "Agent: $agent_name"
-            echo "Version: $agent_version"
+            echo "Agent: $agent"
             
-            user_count=$(echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent | startswith($agent)) | .username' | wc -l)
+            user_count=$(echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent == $agent) | .username' | wc -l)
             echo "Number of Users: $user_count"
             echo "Usernames:"
-            echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent | startswith($agent)) | .username'
+            echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent == $agent) | .username'
             echo "--------------------------------------------"
         fi
     done
