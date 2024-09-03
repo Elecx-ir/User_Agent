@@ -2,7 +2,11 @@
 
 fetch_admin_token() {
     clear
-    echo -e "\n-------------------------------------------- V.8.6"
+    echo -e "--------------------------------------------"
+    echo -e "-------- Marzban User Agent Script ---------"
+    echo -e "--------------------------------------------"
+    echo -e "-------------- Tel : @XuVixc ---------------"
+    echo -e "--------------------------------------------"
     read -p "Enter the URL: " API_URL
     echo -e "--------------------------------------------"
     read -p "Enter the Username: " USER_NAME
@@ -26,7 +30,7 @@ fetch_admin_token() {
     token=$(echo "$response" | jq -r '.access_token')
 
     if [ "$token" != "null" ] && [ -n "$token" ]; then
-        echo "Token fetched successfully."
+        echo "Token Fetched Successfully."
         echo "--------------------------------------------"
     else
         echo "Failed to fetch the token. Response: $response"
