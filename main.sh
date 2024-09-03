@@ -27,7 +27,7 @@ fetch_admin_token() {
     token=$(echo "$response" | jq -r '.access_token')
 
     if [ "$token" != "null" ] && [ -n "$token" ]; then
-        echo "Token Fetched Successfully."
+        echo "\nToken Fetched Successfully."
         echo "--------------------------------------------"
     else
         echo "Failed to fetch the token. Response: $response"
@@ -69,8 +69,8 @@ get_agent_user_stats() {
     done
     
     while true; do
-        read -p "Enter the number corresponding to the agent to display users (or '0' to quit): " selected_index
-        echo -e "--------------------------------------------"
+        read -p "\nEnter the number corresponding to the agent to display users (or '0' to quit): " selected_index
+        echo -e "\n--------------------------------------------"
         if [[ "$selected_index" == "0" ]]; then
             echo "Exiting..."
             break
