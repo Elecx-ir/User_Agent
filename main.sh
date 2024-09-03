@@ -2,7 +2,7 @@
 
 fetch_admin_token() {
     clear
-    echo -e "\n-------------------------------------------- V.8.5"
+    echo -e "\n-------------------------------------------- V.8.6"
     read -p "Enter the URL: " API_URL
     echo -e "--------------------------------------------"
     read -p "Enter the Username: " USER_NAME
