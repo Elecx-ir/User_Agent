@@ -7,9 +7,9 @@ fetch_admin_token() {
     echo -e "--------------------------------------------"
     echo -e "------------ Telegram : @XuVixc ------------"
     echo -e "--------------------------------------------"
-    read -p "\nEnter the URL: " API_URL
-    read -p "\nEnter the Username: " USER_NAME
-    read -p "\nEnter the Password: " PASSWORD
+    read -p "/nEnter the URL: " API_URL
+    read -p "/nEnter the Username: " USER_NAME
+    read -p "/nEnter the Password: " PASSWORD
 
     local url="${API_URL}/api/admin/token"
     local data="grant_type=password&username=${USER_NAME}&password=${PASSWORD}&scope=read write&client_id=your-client-id&client_secret=your-client-secret"
@@ -27,7 +27,7 @@ fetch_admin_token() {
     token=$(echo "$response" | jq -r '.access_token')
 
     if [ "$token" != "null" ] && [ -n "$token" ]; then
-        echo "\nToken Fetched Successfully."
+        echo "/nToken Fetched Successfully."
         echo "--------------------------------------------"
     else
         echo "Failed to fetch the token. Response: $response"
@@ -69,8 +69,8 @@ get_agent_user_stats() {
     done
     
     while true; do
-        read -p "\nEnter the number corresponding to the agent to display users (or '0' to quit): " selected_index
-        echo -e "\n--------------------------------------------"
+        read -p "/nEnter the number corresponding to the agent to display users (or '0' to quit): " selected_index
+        echo -e "/n--------------------------------------------"
         if [[ "$selected_index" == "0" ]]; then
             echo "Exiting..."
             break
