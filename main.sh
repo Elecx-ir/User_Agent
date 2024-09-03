@@ -31,7 +31,7 @@ fetch_admin_token() {
     echo -e "${BLUE}--------------------------------------------${NC}"
     echo -e "${BLUE}-------- Marzban User Agent Script ---------${NC}"
     echo -e "${BLUE}--------------------------------------------${NC}"
-    echo -e "${BLUE}------------Telegram : @XuVixc -------------${NC}"
+    echo -e "${BLUE}------------ Telegram : @XuVixc ------------${NC}"
     echo -e "${BLUE}--------------------------------------------${NC}"
     read -p "Enter the URL: " API_URL
     read -p "Enter the Username: " USER_NAME
