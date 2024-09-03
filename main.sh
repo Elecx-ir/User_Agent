@@ -1,13 +1,14 @@
 #!/bin/bash
 
 fetch_admin_token() {
-    echo -e "\n-------------------------------------------- V.8.4"
+    clear
+    echo -e "\n-------------------------------------------- V.8.5"
     read -p "Enter the URL: " API_URL
-    echo -e "\n--------------------------------------------"
+    echo -e "--------------------------------------------"
     read -p "Enter the Username: " USER_NAME
-    echo -e "\n--------------------------------------------"
+    echo -e "--------------------------------------------"
     read -p "Enter the Password: " PASSWORD
-    echo -e "\n--------------------------------------------"
+    echo -e "--------------------------------------------"
 
     local url="${API_URL}/api/admin/token"
     local data="grant_type=password&username=${USER_NAME}&password=${PASSWORD}&scope=read write&client_id=your-client-id&client_secret=your-client-secret"
@@ -62,14 +63,13 @@ get_agent_user_stats() {
         agent_index=1
         declare -A agent_display_map
         for agent in "${!agent_counts[@]}"; do
-            echo "$agent_index. $agent"
             agent_display_map[$agent_index]=$agent
-            echo "Number of Users: ${agent_counts[$agent]}"
+            echo "$agent_index) $agent - Number of Users: ${agent_counts[$agent]}"
             ((agent_index++))
         done
 
         read -p "Enter the number corresponding to the agent to display users (or '0' to quit): " selected_index
-        echo -e "\n--------------------------------------------"
+        echo -e "--------------------------------------------"
         if [[ "$selected_index" == "0" ]]; then
             echo "Exiting..."
             break
@@ -82,7 +82,7 @@ get_agent_user_stats() {
             echo "Number of Users: ${agent_counts[$selected_agent]}"
             echo "Usernames:"
             echo "${agent_users[$selected_agent]}"
-            echo -e "\n--------------------------------------------"
+            echo -e "--------------------------------------------"
         else
             echo "Invalid agent number."
         fi
