@@ -1,7 +1,7 @@
 #!/bin/bash
 
 fetch_admin_token() {
-     echo -e "\n-------------------------------------------- V.3"
+     echo -e "\n-------------------------------------------- V.3.3"
     read -p "Enter the API URL: " API_URL
     read -p "Enter the Username: " USER_NAME
     read -s -p "Enter the Password: " PASSWORD
@@ -48,25 +48,19 @@ get_all_users() {
         return 1
     fi
 
-    content_type=$(echo "$response" | grep -i 'content-type' | awk -F': ' '{print $2}')
-    
-    if [[ "$content_type" == *"application/json"* ]]; then
-        users_data=$(echo "$response" | jq '.users')
+    # Parse the JSON response to extract user data
+    users_data=$(echo "$response" | jq '.users')
 
-        if [ "$users_data" != "null" ] && [ -n "$users_data" ]; then
-            echo "Users fetched successfully."
-            echo "$users_data"
-            echo "--------------------------------------------"
-        else
-            echo "No users found or failed to parse the response."
-            return 1
-        fi
+    if [ "$users_data" != "null" ] && [ -n "$users_data" ]; then
+        echo "Users fetched successfully."
+        echo "$users_data"
+        echo "--------------------------------------------"
     else
-        echo "Unexpected content type: $content_type"
-        echo "Response: $response"
+        echo "No users found or failed to parse the response."
         return 1
     fi
 }
+
 
 
 
