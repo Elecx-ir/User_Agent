@@ -49,20 +49,17 @@ get_agent_user_stats() {
     echo "--------------------------------------------"
 
     # Extract and process sub_last_user_agent values
-    # Use jq to get a unique list of agents with the full string
-    agents=$(echo "$response" | jq -r '.users[].sub_last_user_agent' )
-    echo "$agents"
-    echo "--------------------------------------------"
-    # Use associative array to track counts and users
+    agents=$(echo "$response" | jq -r '.users[].sub_last_user_agent' | sort | uniq -c)
+
     declare -A agent_users
     declare -A agent_counts
 
-    for agent in $agents; do
-        # Get user count for the agent
-        user_count=$(echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent == $agent) | .username' | wc -l)
-        agent_users["$agent"]=$(echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent == $agent) | .username' | tr '\n' ' ')
-        agent_counts["$agent"]=$user_count
-    done
+    # Iterate over each unique agent and count the associated users
+    while read -r count agent; do
+        user_list=$(echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent == $agent) | .username' | tr '\n' ' ')
+        agent_users["$agent"]="$user_list"
+        agent_counts["$agent"]=$count
+    done <<< "$agents"
 
     # Display agents with their user counts
     agent_index=1
