@@ -1,7 +1,7 @@
 #!/bin/bash
 
 fetch_admin_token() {
-    echo -e "\n-------------------------------------------- V.8.4"
+    echo -e "\n-------------------------------------------- V.8.6"
     read -p "Enter the API URL: " API_URL
     read -p "Enter the Username: " USER_NAME
     read -s -p "Enter the Password: " PASSWORD
@@ -49,15 +49,13 @@ get_agent_user_stats() {
     echo "--------------------------------------------"
 
     # Extract and process sub_last_user_agent values
-    # Use jq to get a unique list of agents with the full string
-    agents=$(echo "$response" | jq -r '.users[].sub_last_user_agent' )
+    agents=$(echo "$response" | jq -r '.users[].sub_last_user_agent' | sort | uniq | paste -sd, -)
 
     # Use associative array to track counts and users
     declare -A agent_users
     declare -A agent_counts
 
-    for agent in $agents; do
-        # Get user count for the agent
+    for agent in $(echo "$agents" | tr ',' '\n'); do
         user_count=$(echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent == $agent) | .username' | wc -l)
         agent_users["$agent"]=$(echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent == $agent) | .username' | tr '\n' ' ')
         agent_counts["$agent"]=$user_count
@@ -83,7 +81,7 @@ get_agent_user_stats() {
         echo "Agent: $selected_agent"
         echo "Number of Users: ${agent_counts[$selected_agent]}"
         echo "Usernames:"
-        echo "${agent_users[$selected_agent]}"
+        echo "$(echo "${agent_users[$selected_agent]}" | sed 's/ /, /g')"
     else
         echo "Invalid agent number."
     fi
