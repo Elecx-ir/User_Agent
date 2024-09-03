@@ -1,7 +1,7 @@
 #!/bin/bash
 
 fetch_admin_token() {
-    echo -e "\n-------------------------------------------- V.7.7"
+    echo -e "\n-------------------------------------------- V.7.8"
     read -p "Enter the API URL: " API_URL
     read -p "Enter the Username: " USER_NAME
     read -s -p "Enter the Password: " PASSWORD
@@ -49,6 +49,7 @@ get_agent_user_stats() {
     echo "--------------------------------------------"
 
     # Extract and process sub_last_user_agent values
+    # Use jq to get a unique list of agents with the full string
     agents=$(echo "$response" | jq -r '.users[].sub_last_user_agent' | sort | uniq)
 
     # Use associative array to track counts and users
@@ -56,28 +57,35 @@ get_agent_user_stats() {
     declare -A agent_counts
 
     for agent in $agents; do
+        # Get user count for the agent
         user_count=$(echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent == $agent) | .username' | wc -l)
         agent_users["$agent"]=$(echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent == $agent) | .username' | tr '\n' ' ')
         agent_counts["$agent"]=$user_count
     done
 
     # Display agents with their user counts
+    agent_index=1
+    declare -A agent_display_map
     for agent in "${!agent_counts[@]}"; do
-        echo "Agent: $agent"
+        echo "$agent_index. $agent"
+        agent_display_map[$agent_index]=$agent
         echo "Number of Users: ${agent_counts[$agent]}"
         echo "--------------------------------------------"
+        ((agent_index++))
     done
 
     # Get user input for agent number
-    read -p "Enter the agent name to display users (exactly as shown above): " selected_agent
+    read -p "Enter the number corresponding to the agent to display users: " selected_index
 
-    if [ -n "${agent_users[$selected_agent]}" ]; then
+    selected_agent=${agent_display_map[$selected_index]}
+
+    if [ -n "$selected_agent" ]; then
         echo "Agent: $selected_agent"
         echo "Number of Users: ${agent_counts[$selected_agent]}"
         echo "Usernames:"
         echo "${agent_users[$selected_agent]}"
     else
-        echo "Invalid agent name."
+        echo "Invalid agent number."
     fi
 }
 
