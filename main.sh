@@ -26,11 +26,11 @@ install_prerequisites() {
 
 fetch_admin_token() {
     clear
-    echo "--------------------------------------------"
-    echo "-------- ${YELLOW}Marzban User Agent Script${NC} ---------"
-    echo "--------------------------------------------"
-    echo "------------ ${YELLOW}Telegram : @XuVixc${NC} ------------"
-    echo "--------------------------------------------"
+    echo -e "--------------------------------------------"
+    echo -e "-------- ${YELLOW}Marzban User Agent Script${NC} ---------"
+    echo -e "--------------------------------------------"
+    echo -e "------------ ${YELLOW}Telegram : @XuVixc${NC} ------------"
+    echo -e "--------------------------------------------"
     read -p "Enter the URL: " API_URL
     read -p "Enter the Username: " USER_NAME
     read -p "Enter the Password: " PASSWORD
@@ -45,17 +45,17 @@ fetch_admin_token() {
         -d "$data")
 
     if [ $? -ne 0 ]; then
-        echo "${RED}Failed to connect to the API.${NC}"
+        echo -e "${RED}Failed to connect to the API.${NC}"
         return 1
     fi
 
     token=$(echo "$response" | jq -r '.access_token')
 
     if [ "$token" != "null" ] && [ -n "$token" ]; then
-        echo "${GREEN}Token Fetched Successfully.${NC}"
+        echo -e "${GREEN}Token Fetched Successfully.${NC}"
         echo "--------------------------------------------"
     else
-        echo "${RED}Failed to fetch the token. Response: $response${NC}"
+        echo -e "${RED}Failed to fetch the token. Response: $response${NC}"
         return 1
     fi
 }
@@ -70,7 +70,7 @@ get_agent_user_stats() {
     response=$(curl -s -X GET "$api_url" "${headers[@]}")
 
     if [ $? -ne 0 ]; then
-        echo "${RED}Failed to connect to the API.${NC}"
+        echo -e "${RED}Failed to connect to the API.${NC}"
         return 1
     fi
 
@@ -89,7 +89,7 @@ get_agent_user_stats() {
     declare -A agent_display_map
     for agent in "${!agent_counts[@]}"; do
         agent_display_map[$agent_index]=$agent
-        echo "$agent_index) ${GREEN}$agent - Number of Users: ${agent_counts[$agent]}${NC}"
+        echo -e "$agent_index) ${GREEN}$agent - Number of Users: ${agent_counts[$agent]}${NC}"
         ((agent_index++))
     done
     
@@ -105,10 +105,10 @@ get_agent_user_stats() {
         selected_agent=${agent_display_map[$selected_index]}
 
         if [ -n "$selected_agent" ]; then
-            echo "${GREEN}$selected_agent - Number of Users: ${agent_counts[$selected_agent]}${NC}"
-            echo "${YELLOW}Usernames: ${agent_users[$selected_agent]}${NC}"
+            echo -e "${GREEN}$selected_agent - Number of Users: ${agent_counts[$selected_agent]}${NC}"
+            echo -e "${YELLOW}Usernames: ${agent_users[$selected_agent]}${NC}"
         else
-            echo "${RED}Invalid agent number.${NC}"
+            echo -e "${RED}Invalid agent number.${NC}"
         fi
     done
 }
