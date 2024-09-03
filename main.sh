@@ -1,7 +1,7 @@
 #!/bin/bash
 
 fetch_admin_token() {
-    echo -e "\n-------------------------------------------- V.7.8"
+    echo -e "\n-------------------------------------------- V.8.2"
     read -p "Enter the API URL: " API_URL
     read -p "Enter the Username: " USER_NAME
     read -s -p "Enter the Password: " PASSWORD
@@ -50,7 +50,7 @@ get_agent_user_stats() {
 
     # Extract and process sub_last_user_agent values
     # Use jq to get a unique list of agents with the full string
-    agents=$(echo "$response" | jq -r '.users[].sub_last_user_agent' | sort | uniq)
+    agents=$(echo "$response" | jq -r '.users[].sub_last_user_agent' | sort )
 
     # Use associative array to track counts and users
     declare -A agent_users
