@@ -1,7 +1,7 @@
 #!/bin/bash
 
 fetch_admin_token() {
-     echo -e "\n-------------------------------------------- V.3.3"
+     echo -e "\n-------------------------------------------- V.4"
     read -p "Enter the API URL: " API_URL
     read -p "Enter the Username: " USER_NAME
     read -s -p "Enter the Password: " PASSWORD
@@ -50,10 +50,14 @@ get_all_users() {
 
     # Parse the JSON response to extract user data
     users_data=$(echo "$response" | jq '.users')
+    users=$(echo "$response" | jq '.total')
 
     if [ "$users_data" != "null" ] && [ -n "$users_data" ]; then
-        echo "Users fetched successfully."
+        echo "Users Data :"
         echo "$users_data"
+        echo "--------------------------------------------"
+        echo "Users :"
+        echo "$users"
         echo "--------------------------------------------"
     else
         echo "No users found or failed to parse the response."
