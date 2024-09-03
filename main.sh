@@ -1,7 +1,7 @@
 #!/bin/bash
 
 fetch_admin_token() {
-    echo -e "\n-------------------------------------------- V.8.4"
+    echo -e "\n-------------------------------------------- V.8.5"
     read -p "Enter the API URL: " API_URL
     read -p "Enter the Username: " USER_NAME
     read -s -p "Enter the Password: " PASSWORD
