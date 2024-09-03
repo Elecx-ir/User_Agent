@@ -3,7 +3,6 @@
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
-BLUE='\033[0;36m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
@@ -28,15 +27,15 @@ install_prerequisites() {
 
 fetch_admin_token() {
     clear
-    echo -e "${BLUE}--------------------------------------------${NC}"
-    echo -e "${BLUE}-------- Marzban User Agent Script ---------${NC}"
-    echo -e "${BLUE}--------------------------------------------${NC}"
-    echo -e "${BLUE}------------ Telegram : @XuVixc ------------${NC}"
-    echo -e "${BLUE}--------------------------------------------${NC}"
-    read -p "Enter the URL: " API_URL
-    read -p "Enter the Username: " USER_NAME
-    read -p "Enter the Password: " PASSWORD
-    echo -e "${BLUE}--------------------------------------------${NC}"
+    echo -e "${CYAN}--------------------------------------------${NC}"
+    echo -e "${CYAN}-------- Marzban User Agent Script ---------${NC}"
+    echo -e "${CYAN}--------------------------------------------${NC}"
+    echo -e "${CYAN}------------ Telegram : @XuVixc ------------${NC}"
+    echo -e "${CYAN}--------------------------------------------${NC}"
+    read -p "${YELLOW}Enter the URL: " API_URL
+    read -p "${YELLOW}Enter the Username: " USER_NAME
+    read -p "${YELLOW}Enter the Password: " PASSWORD
+    echo -e "${CYAN}--------------------------------------------${NC}"
 
     local url="${API_URL}/api/admin/token"
     local data="grant_type=password&username=${USER_NAME}&password=${PASSWORD}&scope=read write&client_id=your-client-id&client_secret=your-client-secret"
@@ -54,7 +53,7 @@ fetch_admin_token() {
     token=$(echo "$response" | jq -r '.access_token')
 
     if [ "$token" != "null" ] && [ -n "$token" ]; then
-        echo -e "${GREEN}Token Fetched Successfully.${NC}"
+        echo -e "${CYAN}Token Fetched Successfully.${NC}"
     else
         echo -e "${RED}Failed to fetch the token. Response: $response${NC}"
         return 1
@@ -68,7 +67,6 @@ get_agent_user_stats() {
         -H "Authorization: Bearer $token"
     )
 
-    echo -e "${YELLOW}Fetching User Agents...${NC}"
     response=$(curl -s -X GET "$api_url" "${headers[@]}")
 
     if [ $? -ne 0 ]; then
@@ -91,13 +89,13 @@ get_agent_user_stats() {
     declare -A agent_display_map
     for agent in "${!agent_counts[@]}"; do
         agent_display_map[$agent_index]=$agent
-        echo -e "${BLUE}$agent_index) $agent - ${GREEN}Number of Users: ${agent_counts[$agent]}${NC}"
+        echo -e "${GREEN}$agent_index) $agent - ${GREEN}Number of Users: ${agent_counts[$agent]}${NC}"
         ((agent_index++))
     done
     
     while true; do
-        read -p "Enter the number corresponding to the agent to display users (or '0' to quit): " selected_index
-        echo -e "${BLUE}--------------------------------------------${NC}"
+        read -p "${YELLOW}Enter the number corresponding to the agent to display users (or '0' to quit): " selected_index
+        echo -e "${CYAN}--------------------------------------------${NC}"
         if [[ "$selected_index" == "0" ]]; then
             echo -e "${YELLOW}Exiting...${NC}"
             break
@@ -106,7 +104,7 @@ get_agent_user_stats() {
         selected_agent=${agent_display_map[$selected_index]}
 
         if [ -n "$selected_agent" ]; then
-            echo -e "${BLUE}Agent: $selected_agent${NC}"
+            echo -e "${CYAN}Agent: $selected_agent${NC}"
             echo -e "${GREEN}Number of Users: ${agent_counts[$selected_agent]}${NC}"
             echo -e "${YELLOW}Usernames:${NC}"
             echo -e "${GREEN}${agent_users[$selected_agent]}${NC}"
