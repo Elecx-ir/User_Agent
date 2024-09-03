@@ -23,7 +23,7 @@ fetch_admin_token() {
 
     if [ "$token" != "null" ]; then
         echo "Token fetched successfully: $token"
-        echo "$token"
+        echo "--------------------------------------------"
     else
         echo "No access token found in the response."
         return 1
@@ -31,16 +31,10 @@ fetch_admin_token() {
 }
 
 get_all_users() {
-    TOKEN=$(fetch_admin_token)
-    if [ $? -ne 0 ]; then
-        echo "Failed to get access token."
-        return 1
-    fi
-
     local api_url="${API_URL}/api/users"
     response=$(curl -s -X GET "$api_url" \
         -H "accept: application/json" \
-        -H "Authorization: Bearer $TOKEN")
+        -H "Authorization: Bearer $token")
 
     if [ $? -ne 0 ]; then
         echo "Failed to fetch users"
@@ -69,4 +63,5 @@ get_all_users() {
     fi
 }
 
+fetch_admin_token
 get_all_users
