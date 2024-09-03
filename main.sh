@@ -114,10 +114,7 @@ get_agent_user_stats() {
     done
 }
 
-# Install prerequisites before running the script
 install_prerequisites
-
-# Run the main functions
 fetch_admin_token
 if [ $? -eq 0 ]; then
     get_agent_user_stats
