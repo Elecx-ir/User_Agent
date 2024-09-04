@@ -27,7 +27,7 @@ install_prerequisites() {
 fetch_admin_token() {
     clear
     echo -e "--------------------------------------------"
-    echo -e "-------- ${YELLOW}Marzban User AAgent Script${NC} ---------"
+    echo -e "-------- ${YELLOW}Marzban User Agent Script${NC} ---------"
     echo -e "--------------------------------------------"
     echo -e "------------ ${YELLOW}Telegram : @XuVixc${NC} ------------"
     echo -e "--------------------------------------------"
@@ -41,7 +41,10 @@ fetch_admin_token() {
     response=$(curl -s -X POST "$url" -H "accept: application/json" -H "Content-Type: application/x-www-form-urlencoded" -d "$data")
 
     token=$(echo "$response" | jq -r '.access_token')
-    [[ $? -ne 0 || "$token" == "null" || -z "$token" ]] && { echo -e "${RED}Failed to fetch the token. Response: $response${NC}"; return 1; }
+    if [[ $? -ne 0 || "$token" == "null" || -z "$token" ]]; then
+        echo -e "${RED}Failed to fetch the token. Response: $response${NC}"
+        return 1
+    fi
 
     echo -e "${GREEN}Token Fetched Successfully.${NC}"
     echo "--------------------------------------------"
@@ -51,7 +54,10 @@ get_agent_user_stats() {
     local api_url="${API_URL}/api/users"
     local response=$(curl -s -X GET "$api_url" -H "accept: application/json" -H "Authorization: Bearer $token")
     
-    [[ $? -ne 0 ]] && { echo -e "${RED}Failed to connect to the API.${NC}"; return 1; }
+    if [[ $? -ne 0 ]]; then
+        echo -e "${RED}Failed to connect to the API.${NC}"
+        return 1
+    fi
 
     declare -A agent_users agent_counts agent_display_map
 
@@ -71,13 +77,15 @@ get_agent_user_stats() {
         echo "--------------------------------------------"
         read -p "Enter the number corresponding to the agent to display users (or '0' to Exit): " selected_index
         echo "--------------------------------------------"
-        [[ "$selected_index" == "0" ]] && { echo -e "${RED}Exiting...${NC}"; break; }
+        if [[ "$selected_index" == "0" ]]; then
+            echo -e "${RED}Exiting...${NC}"
+            break
+        fi
 
         local selected_agent=${agent_display_map[$selected_index]}
-        [[ -n "$selected_agent" ]] && {
+        if [[ -n "$selected_agent" ]]; then
             echo -e "${GREEN}$selected_agent - Number of Users: ${agent_counts[$selected_agent]}${NC}"
             echo -e "${YELLOW}Usernames: ${agent_users[$selected_agent]}${NC}"
-        } 
         else
             echo -e "${RED}Invalid agent number.${NC}"
         fi
