@@ -27,7 +27,7 @@ install_prerequisites() {
 fetch_admin_token() {
     clear
     echo -e "--------------------------------------------"
-    echo -e "-------- ${YELLOW}Marzban User aAgent Script${NC} ---------"
+    echo -e "-------- ${YELLOW}Marzban User Agent Script${NC} ---------"
     echo -e "--------------------------------------------"
     echo -e "------------ ${YELLOW}Telegram : @XuVixc${NC} ------------"
     echo -e "--------------------------------------------"
@@ -61,17 +61,13 @@ get_agent_user_stats() {
 
     declare -A agent_users agent_counts agent_display_map
 
-    # Fill agent_users and agent_counts arrays
     while read -r count agent; do
         agent_users["$agent"]=$(echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent == $agent) | .username' | tr '\n' ' ')
         agent_counts["$agent"]=$count
     done < <(echo "$response" | jq -r '.users[].sub_last_user_agent' | sort | uniq -c)
 
-    # Sort agents by user count in descending order
-    sorted_agents=($(for agent in "${!agent_counts[@]}"; do echo "$agent:${agent_counts[$agent]}"; done | sort -t: -k2 -nr | cut -d: -f1))
-
     local agent_index=1
-    for agent in "${sorted_agents[@]}"; do
+    for agent in "${!agent_counts[@]}"; do
         agent_display_map[$agent_index]=$agent
         echo -e "$agent_index) ${GREEN}$agent - Number of Users: ${agent_counts[$agent]}${NC}"
         ((agent_index++))
