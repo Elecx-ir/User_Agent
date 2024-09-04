@@ -27,7 +27,7 @@ install_prerequisites() {
 fetch_admin_token() {
     clear
     echo -e "--------------------------------------------"
-    echo -e "-------- ${YELLOW}Marzban User Agent Script${NC} ---------"
+    echo -e "-------- ${YELLOW}Marzban User AAgent Script${NC} ---------"
     echo -e "--------------------------------------------"
     echo -e "------------ ${YELLOW}Telegram : @XuVixc${NC} ------------"
     echo -e "--------------------------------------------"
