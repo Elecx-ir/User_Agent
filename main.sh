@@ -27,7 +27,7 @@ install_prerequisites() {
 fetch_admin_token() {
     clear
     echo -e "--------------------------------------------"
-    echo -e "-------- ${YELLOW}Marzban User AAgent Script${NC} ---------"
+    echo -e "-------- ${YELLOW}Marzban User Agent Script${NC} ---------"
     echo -e "--------------------------------------------"
     echo -e "------------ ${YELLOW}Telegram : @XuVixc${NC} ------------"
     echo -e "--------------------------------------------"
@@ -60,21 +60,10 @@ get_agent_user_stats() {
     fi
 
     declare -A agent_users agent_counts
-    local null_agent_count=0
-    local null_agent_users=""
 
     while read -r count agent; do
-        if [[ -z "$agent" || "$agent" == "null" ]]; then
-            null_agent_count=$((null_agent_count + count))
-            null_agent_users+=$(echo "$response" | jq -r '.users[] | select(.sub_last_user_agent == null) | .username' | tr '\n' ' ')
-        else
-            # Get usernames only if there are users associated with this User-Agent
-            users=$(echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent == $agent) | .username')
-            if [[ -n "$users" ]]; then
-                agent_users["$agent"]=$(echo "$users" | tr '\n' ' ')
-                agent_counts["$agent"]=$count
-            fi
-        fi
+        agent_users["$agent"]=$(echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent == $agent) | .username' | tr '\n' ' ')
+        agent_counts["$agent"]=$count
     done < <(echo "$response" | jq -r '.users[].sub_last_user_agent' | sort | uniq -c)
 
     # Create an array to hold the agents sorted by user count
@@ -88,12 +77,6 @@ get_agent_user_stats() {
         ((agent_index++))
     done
 
-    # Add the null agent category to the list
-    if [[ $null_agent_count -gt 0 ]]; then
-        echo -e "$agent_index) ${GREEN}No User Agent - Number of Users: $null_agent_count${NC}"
-        sorted_agents+=("null_agent")
-    fi
-
     while true; do
         echo "--------------------------------------------"
         read -p "Enter the number corresponding to the agent to display users (or '0' to Exit): " selected_index
@@ -104,10 +87,7 @@ get_agent_user_stats() {
         fi
 
         local selected_agent=${sorted_agents[$((selected_index - 1))]}
-        if [[ "$selected_agent" == "null_agent" ]]; then
-            echo -e "${GREEN}No User Agent - Number of Users: $null_agent_count${NC}"
-            echo -e "${YELLOW}Usernames: $null_agent_users${NC}"
-        elif [[ -n "$selected_agent" ]]; then
+        if [[ -n "$selected_agent" ]]; then
             echo -e "${GREEN}$selected_agent - Number of Users: ${agent_counts[$selected_agent]}${NC}"
             echo -e "${YELLOW}Usernames: ${agent_users[$selected_agent]}${NC}"
         else
@@ -115,6 +95,7 @@ get_agent_user_stats() {
         fi
     done
 }
+
 
 
 
