@@ -68,11 +68,16 @@ get_agent_user_stats() {
             null_agent_count=$((null_agent_count + count))
             null_agent_users+=$(echo "$response" | jq -r '.users[] | select(.sub_last_user_agent == null) | .username' | tr '\n' ' ')
         else
-            agent_users["$agent"]=$(echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent == $agent) | .username' | tr '\n' ' ')
-            agent_counts["$agent"]=$count
+            # Get usernames only if there are users associated with this User-Agent
+            users=$(echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent == $agent) | .username')
+            if [[ -n "$users" ]]; then
+                agent_users["$agent"]=$(echo "$users" | tr '\n' ' ')
+                agent_counts["$agent"]=$count
+            fi
         fi
     done < <(echo "$response" | jq -r '.users[].sub_last_user_agent' | sort | uniq -c)
 
+    # Create an array to hold the agents sorted by user count
     local sorted_agents=($(for agent in "${!agent_counts[@]}"; do
         echo "${agent_counts[$agent]} $agent"
     done | sort -nr | awk '{print $2}'))
@@ -83,6 +88,7 @@ get_agent_user_stats() {
         ((agent_index++))
     done
 
+    # Add the null agent category to the list
     if [[ $null_agent_count -gt 0 ]]; then
         echo -e "$agent_index) ${GREEN}No User Agent - Number of Users: $null_agent_count${NC}"
         sorted_agents+=("null_agent")
@@ -109,6 +115,7 @@ get_agent_user_stats() {
         fi
     done
 }
+
 
 
 install_prerequisites
