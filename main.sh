@@ -77,7 +77,8 @@ get_agent_user_stats() {
         [[ -n "$selected_agent" ]] && {
             echo -e "${GREEN}$selected_agent - Number of Users: ${agent_counts[$selected_agent]}${NC}"
             echo -e "${YELLOW}Usernames: ${agent_users[$selected_agent]}${NC}"
-        } else
+        } 
+        else
             echo -e "${RED}Invalid agent number.${NC}"
         fi
     done
