@@ -59,20 +59,20 @@ get_agent_user_stats() {
         return 1
     fi
 
-    declare -A agent_users agent_counts
+    declare -A agent_users agent_counts agent_display_map
 
+    # Fill agent_users and agent_counts arrays
     while read -r count agent; do
         agent_users["$agent"]=$(echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent == $agent) | .username' | tr '\n' ' ')
         agent_counts["$agent"]=$count
     done < <(echo "$response" | jq -r '.users[].sub_last_user_agent' | sort | uniq -c)
 
-    # Create an array to hold the agents sorted by user count
-    local sorted_agents=($(for agent in "${!agent_counts[@]}"; do
-        echo "${agent_counts[$agent]} $agent"
-    done | sort -nr | awk '{print $2}'))
+    # Sort agents by user count in descending order
+    sorted_agents=($(for agent in "${!agent_counts[@]}"; do echo "$agent:${agent_counts[$agent]}"; done | sort -t: -k2 -nr | cut -d: -f1))
 
     local agent_index=1
     for agent in "${sorted_agents[@]}"; do
+        agent_display_map[$agent_index]=$agent
         echo -e "$agent_index) ${GREEN}$agent - Number of Users: ${agent_counts[$agent]}${NC}"
         ((agent_index++))
     done
@@ -86,7 +86,7 @@ get_agent_user_stats() {
             break
         fi
 
-        local selected_agent=${sorted_agents[$((selected_index - 1))]}
+        local selected_agent=${agent_display_map[$selected_index]}
         if [[ -n "$selected_agent" ]]; then
             echo -e "${GREEN}$selected_agent - Number of Users: ${agent_counts[$selected_agent]}${NC}"
             echo -e "${YELLOW}Usernames: ${agent_users[$selected_agent]}${NC}"
@@ -95,9 +95,6 @@ get_agent_user_stats() {
         fi
     done
 }
-
-
-
 
 install_prerequisites
 fetch_admin_token && get_agent_user_stats
