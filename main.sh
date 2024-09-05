@@ -36,7 +36,7 @@ fetch_admin_token() {
     read -p "Enter the URL [ https://sub.Marzban.com:Port ]: " API_URL
     read -p "Enter the Username: " USER_NAME
     read -p "Enter the Password: " PASSWORD
-    echo -e "\n--------------------------------------------"
+    echo -e "--------------------------------------------"
 
     local url="${API_URL}/api/admin/token"
     local data="username=${USER_NAME}&password=${PASSWORD}"
@@ -74,7 +74,11 @@ get_agent_user_stats() {
             agent_counts["$agent"]=$count
         fi
     done < <(echo "$response" | jq -r '.users[].sub_last_user_agent | select(. != null) // "null Agent"' | sort | uniq -c)
-
+    
+    Total=$(echo "$response" | jq -c '.total')
+    echo -e "--------------${YELLOW}Total Users: ${Total}${NC}--------------"
+    echo "--------------------------------------------"
+    
     local agent_index=1
     for agent in "${!agent_counts[@]}"; do
         agent_display_map[$agent_index]=$agent
