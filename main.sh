@@ -63,16 +63,10 @@ get_agent_user_stats() {
 
     # Read user agents and count them, including "null" values
     while read -r count agent; do
-        # Replace 'null' with a descriptive label
-        if [[ "$agent" == "null" || -z "$agent" ]]; then
-            agent="Unknown Agent"
-        fi
-        
-        # Ensure $agent is a valid non-empty string before using it as an array key
         if [[ -n "$agent" ]]; then
             # Handle both "null" and non-null agents
             agent_users["$agent"]=$(echo "$response" | jq -r --arg agent "$agent" '
-                if $agent == "Unknown Agent" then 
+                if $agent == "null" then 
                     .users[] | select(.sub_last_user_agent == null) | .username 
                 else 
                     .users[] | select(.sub_last_user_agent == $agent) | .username 
