@@ -26,7 +26,7 @@ install_prerequisites() {
 
 fetch_admin_token() {
     clear
-    echo -e "--------------------------------------------"
+    echo -e "--------------------------------------------V0.1"
     echo -e "-------- ${YELLOW}Marzban User Agent Script${NC} ---------"
     echo -e "--------------------------------------------"
     echo -e "------------ ${YELLOW}Telegram : @XuVixc${NC} ------------"
@@ -75,7 +75,8 @@ get_agent_user_stats() {
     fi
 
     agents=$(echo "$response" | jq -r '.users[].sub_last_user_agent' | sort | uniq -c)
-
+    echo "Agents fetched: $agents"
+    
     declare -A agent_users
     declare -A agent_counts
 
