@@ -37,7 +37,7 @@ fetch_admin_token() {
     echo -e "\n--------------------------------------------"
 
     local url="${API_URL}/api/admin/token"
-    local data="username=${USER_NAME}&password=${PASSWORD}"
+    local data="grant_type=password&username=${USER_NAME}&password=${PASSWORD}&scope=read write&client_id=your-client-id&client_secret=your-client-secret"
     response=$(curl -s -X POST "$url" -H "accept: application/json" -H "Content-Type: application/x-www-form-urlencoded" -d "$data")
 
     token=$(echo "$response" | jq -r '.access_token')
@@ -48,10 +48,6 @@ fetch_admin_token() {
 
     echo -e "${GREEN}Token Fetched Successfully.${NC}"
     echo "--------------------------------------------"
-}
-
-sanitize_string() {
-    echo "$1" | tr ' ' '_' | tr -cd '[:alnum:]_'
 }
 
 get_agent_user_stats() {
@@ -66,9 +62,8 @@ get_agent_user_stats() {
     declare -A agent_users agent_counts agent_display_map
 
     while read -r count agent; do
-        sanitized_agent=$(sanitize_string "$agent")
-        agent_users["$sanitized_agent"]=$(echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent == $agent) | .username' | tr '\n' ' ')
-        agent_counts["$sanitized_agent"]=$count
+        agent_users["$agent"]=$(echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent == $agent) | .username' | tr '\n' ' ')
+        agent_counts["$agent"]=$count
     done < <(echo "$response" | jq -r '.users[].sub_last_user_agent' | sort | uniq -c)
 
     local agent_index=1
