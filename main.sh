@@ -94,6 +94,7 @@ get_agent_user_stats() {
         local selected_agent=${agent_display_map[$selected_index]}
         if [[ -n "$selected_agent" ]]; then
             echo -e "${YELLOW}$selected_agent - ${GREEN}Number of Users: ${agent_counts[$selected_agent]}${NC}"
+            echo
             echo -e "${CYAN}Usernames: ${agent_users[$selected_agent]}${NC}"
         else
             echo -e "${RED}Invalid agent number.${NC}"
