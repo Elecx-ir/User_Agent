@@ -28,7 +28,7 @@ install_prerequisites() {
 
 fetch_admin_token() {
     clear
-    echo -e "--------------------------------------------"
+    echo -e "--------------------------------------------VV"
     echo -e "-------- ${ORANGE}Marzban User Agent Script${NC} ---------"
     echo -e "--------------------------------------------"
     echo -e "------------ ${ORANGE}Telegram : @XuVixc${NC} ------------"
@@ -76,12 +76,7 @@ get_agent_user_stats() {
     done < <(echo "$response" | jq -r '.users[].sub_last_user_agent | select(. != null) // "null Agent"' | sort | uniq -c)
 
     local agent_index=1
-    
-    sorted_agents=$(for key in "${!agent_counts[@]}"; do
-        echo "$key ${agent_counts[$key]}"
-    done | sort -k2 -nr | awk '{print $1}')
-
-    for agent in $sorted_agents; do
+    for agent in "${!agent_counts[@]}"; do
         agent_display_map[$agent_index]=$agent
         echo -e "$agent_index) ${YELLOW}$agent - ${GREEN}Number of Users: ${agent_counts[$agent]}${NC}"
         ((agent_index++))
@@ -107,5 +102,5 @@ get_agent_user_stats() {
 }
 
 
-install_prerequisites
+#install_prerequisites
 fetch_admin_token && get_agent_user_stats
