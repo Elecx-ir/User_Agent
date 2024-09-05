@@ -33,7 +33,7 @@ fetch_admin_token() {
     echo -e "--------------------------------------------"
     echo -e "------------ ${ORANGE}Telegram : @XuVixc${NC} ------------"
     echo -e "--------------------------------------------"
-    read -p "Enter the URL (https://sub.Marzban.com:Port): " API_URL
+    read -p "Enter the URL [ https://sub.Marzban.com:Port ]: " API_URL
     read -p "Enter the Username: " USER_NAME
     read -p "Enter the Password: " PASSWORD
     echo -e "\n--------------------------------------------"
