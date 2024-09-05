@@ -60,9 +60,12 @@ get_agent_user_stats() {
         echo -e "${RED}Failed to connect to the API.${NC}"
         return 1
     fi
-
+    
+    Total=$(echo "$response" | jq -c '.total')
+    echo -e "------------- ${YELLOW}Total Users: ${Total}${NC} -------------"
+    echo "--------------------------------------------"
+    
     declare -A agent_users agent_counts agent_display_map
-
     while read -r count agent; do
         if [[ -n "$agent" ]]; then
             agent_users["$agent"]=$(echo "$response" | jq -r --arg agent "$agent" '
@@ -74,10 +77,6 @@ get_agent_user_stats() {
             agent_counts["$agent"]=$count
         fi
     done < <(echo "$response" | jq -r '.users[].sub_last_user_agent | select(. != null) // "null Agent"' | sort | uniq -c)
-    
-    Total=$(echo "$response" | jq -c '.total')
-    echo -e "--------------${YELLOW}Total Users: ${Total}${NC}--------------"
-    echo "--------------------------------------------"
     
     local agent_index=1
     for agent in "${!agent_counts[@]}"; do
