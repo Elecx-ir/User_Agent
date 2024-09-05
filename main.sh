@@ -27,7 +27,7 @@ install_prerequisites() {
 fetch_admin_token() {
     clear
     echo -e "--------------------------------------------"
-    echo -e "-------- ${YELLOW}Marzban User Agent Script${NC} ---------"
+    echo -e "-------- ${YELLOW}Marzban User AAgent Script${NC} ---------"
     echo -e "--------------------------------------------"
     echo -e "------------ ${YELLOW}Telegram : @XuVixc${NC} ------------"
     echo -e "--------------------------------------------"
@@ -50,6 +50,10 @@ fetch_admin_token() {
     echo "--------------------------------------------"
 }
 
+sanitize_string() {
+    echo "$1" | tr ' ' '_' | tr -cd '[:alnum:]_'
+}
+
 get_agent_user_stats() {
     local api_url="${API_URL}/api/users"
     local response=$(curl -s -X GET "$api_url" -H "accept: application/json" -H "Authorization: Bearer $token")
@@ -62,8 +66,9 @@ get_agent_user_stats() {
     declare -A agent_users agent_counts agent_display_map
 
     while read -r count agent; do
-        agent_users["$agent"]=$(echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent == $agent) | .username' | tr '\n' ' ')
-        agent_counts["$agent"]=$count
+        sanitized_agent=$(sanitize_string "$agent")
+        agent_users["$sanitized_agent"]=$(echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent == $agent) | .username' | tr '\n' ' ')
+        agent_counts["$sanitized_agent"]=$count
     done < <(echo "$response" | jq -r '.users[].sub_last_user_agent' | sort | uniq -c)
 
     local agent_index=1
