@@ -26,7 +26,7 @@ install_prerequisites() {
 
 fetch_admin_token() {
     clear
-    echo -e "--------------------------------------------V1..1"
+    echo -e "--------------------------------------------V2"
     echo -e "-------- ${YELLOW}Marzban User Agent Script${NC} ---------"
     echo -e "--------------------------------------------"
     echo -e "------------ ${YELLOW}Telegram : @XuVixc${NC} ------------"
@@ -62,11 +62,16 @@ get_agent_user_stats() {
     declare -A agent_users agent_counts agent_display_map
 
     while read -r count agent; do
-        if [[ "$agent" == "null" ]]; then
-            agent="Unknown Agent"  # Replace 'null' with a more descriptive label
+        # Replace 'null' with a descriptive label
+        if [[ "$agent" == "null" || -z "$agent" ]]; then
+            agent="Unknown Agent"
         fi
-        agent_users["$agent"]=$(echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent == ($agent // null)) | .username' | tr '\n' ' ')
-        agent_counts["$agent"]=$count
+        
+        # Ensure $agent is a valid non-empty string before using it as an array key
+        if [[ -n "$agent" ]]; then
+            agent_users["$agent"]=$(echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent == ($agent // null)) | .username' | tr '\n' ' ')
+            agent_counts["$agent"]=$count
+        fi
     done < <(echo "$response" | jq -r '.users[].sub_last_user_agent // "null"' | sort | uniq -c)
 
     local agent_index=1
