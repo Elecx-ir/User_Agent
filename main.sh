@@ -28,14 +28,14 @@ install_prerequisites() {
 
 fetch_admin_token() {
     clear
-    echo -e "--------------------------------------------VVVVVVVV"
+    echo -e "--------------------------------------------"
     echo -e "-------- ${ORANGE}Marzban User Agent Script${NC} ---------"
     echo -e "--------------------------------------------"
     echo -e "------------ ${ORANGE}Telegram : @XuVixc${NC} ------------"
     echo -e "--------------------------------------------"
-    read -p "Enter the URL: " API_URL
+    read -p "Enter the URL (https://sub.Marzban.com:Port): " API_URL
     read -p "Enter the Username: " USER_NAME
-    read -sp "Enter the Password: " PASSWORD
+    read -p "Enter the Password: " PASSWORD
     echo -e "\n--------------------------------------------"
 
     local url="${API_URL}/api/admin/token"
@@ -61,7 +61,7 @@ get_agent_user_stats() {
         return 1
     fi
 
-    declare -A agent_users agent_counts
+    declare -A agent_users agent_counts agent_display_map
 
     while read -r count agent; do
         if [[ -n "$agent" ]]; then
@@ -75,26 +75,23 @@ get_agent_user_stats() {
         fi
     done < <(echo "$response" | jq -r '.users[].sub_last_user_agent | select(. != null) // "null Agent"' | sort | uniq -c)
 
-    local sorted_agents=($(for agent in "${!agent_counts[@]}"; do
-        echo "${agent_counts[$agent]} $agent"
-    done | sort -nr | awk '{print $2}'))
-
     local agent_index=1
-    for agent in "${sorted_agents[@]}"; do
+    for agent in "${!agent_counts[@]}"; do
+        agent_display_map[$agent_index]=$agent
         echo -e "$agent_index) ${YELLOW}$agent - ${GREEN}Number of Users: ${agent_counts[$agent]}${NC}"
         ((agent_index++))
     done
 
     while true; do
         echo "--------------------------------------------"
-        read -p "Enter the number corresponding to the agent to display users (or '0' to Exit): " selected_index
+        read -p "Enter the agent number to display the users (or '0' to exit): " selected_index
         echo "--------------------------------------------"
         if [[ "$selected_index" == "0" ]]; then
             echo -e "${RED}Exiting...${NC}"
             break
         fi
 
-        local selected_agent=${sorted_agents[$((selected_index - 1))]}
+        local selected_agent=${agent_display_map[$selected_index]}
         if [[ -n "$selected_agent" ]]; then
             echo -e "${YELLOW}$selected_agent - ${GREEN}Number of Users: ${agent_counts[$selected_agent]}${NC}"
             echo -e "${CYAN}Usernames: ${agent_users[$selected_agent]}${NC}"
@@ -105,6 +102,5 @@ get_agent_user_stats() {
 }
 
 
-
-#install_prerequisites
+install_prerequisites
 fetch_admin_token && get_agent_user_stats
