@@ -3,6 +3,8 @@
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
+ORANGE='\033[1;38;5;208m'
+CYAN='\033[1;36m'
 NC='\033[0m' 
 
 install_prerequisites() {
@@ -26,10 +28,10 @@ install_prerequisites() {
 
 fetch_admin_token() {
     clear
-    echo -e "--------------------------------------------V7"
-    echo -e "-------- ${YELLOW}Marzban User Agent Script${NC} ---------"
     echo -e "--------------------------------------------"
-    echo -e "------------ ${YELLOW}Telegram : @XuVixc${NC} ------------"
+    echo -e "-------- ${ORANGE}Marzban User Agent Script${NC} ---------"
+    echo -e "--------------------------------------------"
+    echo -e "------------ ${ORANGE}Telegram : @XuVixc${NC} ------------"
     echo -e "--------------------------------------------"
     read -p "Enter the URL: " API_URL
     read -p "Enter the Username: " USER_NAME
@@ -76,7 +78,7 @@ get_agent_user_stats() {
     local agent_index=1
     for agent in "${!agent_counts[@]}"; do
         agent_display_map[$agent_index]=$agent
-        echo -e "$agent_index) ${GREEN}$agent - Number of Users: ${agent_counts[$agent]}${NC}"
+        echo -e "$agent_index) ${YELLOW}$agent - ${GREEN}Number of Users: ${agent_counts[$agent]}${NC}"
         ((agent_index++))
     done
 
@@ -91,8 +93,8 @@ get_agent_user_stats() {
 
         local selected_agent=${agent_display_map[$selected_index]}
         if [[ -n "$selected_agent" ]]; then
-            echo -e "${GREEN}$selected_agent - Number of Users: ${agent_counts[$selected_agent]}${NC}"
-            echo -e "${YELLOW}Usernames: ${agent_users[$selected_agent]}${NC}"
+            echo -e "${YELLOW}$selected_agent - ${GREEN}Number of Users: ${agent_counts[$selected_agent]}${NC}"
+            echo -e "${CYAN}Usernames: ${agent_users[$selected_agent]}${NC}"
         else
             echo -e "${RED}Invalid agent number.${NC}"
         fi
@@ -100,5 +102,5 @@ get_agent_user_stats() {
 }
 
 
-#install_prerequisites
+install_prerequisites
 fetch_admin_token && get_agent_user_stats
