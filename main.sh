@@ -101,5 +101,5 @@ get_agent_user_stats() {
     done
 }
 
-install_prerequisites
+#install_prerequisites
 fetch_admin_token && get_agent_user_stats
