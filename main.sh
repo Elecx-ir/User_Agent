@@ -28,7 +28,7 @@ install_prerequisites() {
 
 fetch_admin_token() {
     clear
-    echo -e "--------------------------------------------VV"
+    echo -e "--------------------------------------------VVVVVVVV"
     echo -e "-------- ${ORANGE}Marzban User Agent Script${NC} ---------"
     echo -e "--------------------------------------------"
     echo -e "------------ ${ORANGE}Telegram : @XuVixc${NC} ------------"
@@ -61,7 +61,7 @@ get_agent_user_stats() {
         return 1
     fi
 
-    declare -A agent_users agent_counts agent_display_map
+    declare -A agent_users agent_counts
 
     while read -r count agent; do
         if [[ -n "$agent" ]]; then
@@ -75,9 +75,12 @@ get_agent_user_stats() {
         fi
     done < <(echo "$response" | jq -r '.users[].sub_last_user_agent | select(. != null) // "null Agent"' | sort | uniq -c)
 
+    local sorted_agents=($(for agent in "${!agent_counts[@]}"; do
+        echo "${agent_counts[$agent]} $agent"
+    done | sort -nr | awk '{print $2}'))
+
     local agent_index=1
-    for agent in "${!agent_counts[@]}"; do
-        agent_display_map[$agent_index]=$agent
+    for agent in "${sorted_agents[@]}"; do
         echo -e "$agent_index) ${YELLOW}$agent - ${GREEN}Number of Users: ${agent_counts[$agent]}${NC}"
         ((agent_index++))
     done
@@ -91,7 +94,7 @@ get_agent_user_stats() {
             break
         fi
 
-        local selected_agent=${agent_display_map[$selected_index]}
+        local selected_agent=${sorted_agents[$((selected_index - 1))]}
         if [[ -n "$selected_agent" ]]; then
             echo -e "${YELLOW}$selected_agent - ${GREEN}Number of Users: ${agent_counts[$selected_agent]}${NC}"
             echo -e "${CYAN}Usernames: ${agent_users[$selected_agent]}${NC}"
@@ -100,6 +103,7 @@ get_agent_user_stats() {
         fi
     done
 }
+
 
 
 #install_prerequisites
