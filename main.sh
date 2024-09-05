@@ -26,86 +26,67 @@ install_prerequisites() {
 
 fetch_admin_token() {
     clear
-    echo -e "--------------------------------------------V0.1"
+    echo -e "--------------------------------------------V1..1"
     echo -e "-------- ${YELLOW}Marzban User Agent Script${NC} ---------"
     echo -e "--------------------------------------------"
     echo -e "------------ ${YELLOW}Telegram : @XuVixc${NC} ------------"
     echo -e "--------------------------------------------"
     read -p "Enter the URL: " API_URL
     read -p "Enter the Username: " USER_NAME
-    read -p "Enter the Password: " PASSWORD
-    echo "--------------------------------------------"
+    read -sp "Enter the Password: " PASSWORD
+    echo -e "\n--------------------------------------------"
 
     local url="${API_URL}/api/admin/token"
-    local data="grant_type=password&username=${USER_NAME}&password=${PASSWORD}&scope=read write&client_id=your-client-id&client_secret=your-client-secret"
-
-    response=$(curl -s -X POST "$url" \
-        -H "accept: application/json" \
-        -H "Content-Type: application/x-www-form-urlencoded" \
-        -d "$data")
-
-    if [ $? -ne 0 ]; then
-        echo -e "${RED}Failed to connect to the API.${NC}"
-        return 1
-    fi
+    local data="username=${USER_NAME}&password=${PASSWORD}"
+    response=$(curl -s -X POST "$url" -H "accept: application/json" -H "Content-Type: application/x-www-form-urlencoded" -d "$data")
 
     token=$(echo "$response" | jq -r '.access_token')
-
-    if [ "$token" != "null" ] && [ -n "$token" ]; then
-        echo -e "${GREEN}Token Fetched Successfully.${NC}"
-        echo "--------------------------------------------"
-    else
+    if [[ $? -ne 0 || "$token" == "null" || -z "$token" ]]; then
         echo -e "${RED}Failed to fetch the token. Response: $response${NC}"
         return 1
     fi
+
+    echo -e "${GREEN}Token Fetched Successfully.${NC}"
+    echo "--------------------------------------------"
 }
 
 get_agent_user_stats() {
     local api_url="${API_URL}/api/users"
-    local headers=(
-        -H "accept: application/json"
-        -H "Authorization: Bearer $token"
-    )
-
-    response=$(curl -s -X GET "$api_url" "${headers[@]}")
-
-    if [ $? -ne 0 ]; then
+    local response=$(curl -s -X GET "$api_url" -H "accept: application/json" -H "Authorization: Bearer $token")
+    
+    if [[ $? -ne 0 ]]; then
         echo -e "${RED}Failed to connect to the API.${NC}"
         return 1
     fi
 
-    agents=$(echo "$response" | jq -r '.users[].sub_last_user_agent' | sort | uniq -c)
-    echo "Agents fetched: $agents"
-    
-    declare -A agent_users
-    declare -A agent_counts
+    declare -A agent_users agent_counts agent_display_map
 
     while read -r count agent; do
-        user_list=$(echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent == $agent) | .username' | tr '\n' ' ')
-        agent_users["$agent"]="$user_list"
+        if [[ "$agent" == "null" ]]; then
+            agent="Unknown Agent"  # Replace 'null' with a more descriptive label
+        fi
+        agent_users["$agent"]=$(echo "$response" | jq -r --arg agent "$agent" '.users[] | select(.sub_last_user_agent == ($agent // null)) | .username' | tr '\n' ' ')
         agent_counts["$agent"]=$count
-    done <<< "$agents"
+    done < <(echo "$response" | jq -r '.users[].sub_last_user_agent // "null"' | sort | uniq -c)
 
-    agent_index=1
-    declare -A agent_display_map
+    local agent_index=1
     for agent in "${!agent_counts[@]}"; do
         agent_display_map[$agent_index]=$agent
         echo -e "$agent_index) ${GREEN}$agent - Number of Users: ${agent_counts[$agent]}${NC}"
         ((agent_index++))
     done
-    
+
     while true; do
         echo "--------------------------------------------"
         read -p "Enter the number corresponding to the agent to display users (or '0' to Exit): " selected_index
         echo "--------------------------------------------"
         if [[ "$selected_index" == "0" ]]; then
-            echo "${RED}Exiting...${NC}"
+            echo -e "${RED}Exiting...${NC}"
             break
         fi
 
-        selected_agent=${agent_display_map[$selected_index]}
-
-        if [ -n "$selected_agent" ]; then
+        local selected_agent=${agent_display_map[$selected_index]}
+        if [[ -n "$selected_agent" ]]; then
             echo -e "${GREEN}$selected_agent - Number of Users: ${agent_counts[$selected_agent]}${NC}"
             echo -e "${YELLOW}Usernames: ${agent_users[$selected_agent]}${NC}"
         else
@@ -115,7 +96,4 @@ get_agent_user_stats() {
 }
 
 install_prerequisites
-fetch_admin_token
-if [ $? -eq 0 ]; then
-    get_agent_user_stats
-fi
+fetch_admin_token && get_agent_user_stats
